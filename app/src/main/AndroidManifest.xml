@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.xerocry.planetapp" >
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+        <!-- Register Title Screen Activity as Default (No Rotation, Hide Keyboard) -->
+        <activity
+            android:name="TitleScreen"
+            android:screenOrientation="nosensor"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Register Game Screen Activity (No Rotation, Hide Keyboard) -->
+        <activity android:label="Planet Wars"
+            android:name="com.xerocry.planetapp.GameScreen"
+            android:screenOrientation="nosensor"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            />
+
+        <!-- Register Options Screen Activity (No Rotation, Hide Keyboard) -->
+        <activity android:label="@string/options"
+            android:name="OptionsScreen"
+            android:screenOrientation="nosensor"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            />
+
+    </application>
+
+</manifest>
