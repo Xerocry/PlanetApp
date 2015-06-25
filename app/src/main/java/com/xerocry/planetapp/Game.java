@@ -3,20 +3,13 @@ package com.xerocry.planetapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Game extends View {
     private Player p1 = null;
@@ -31,44 +24,27 @@ public class Game extends View {
     private Set<Planet> planets;
     private Set<Fleet> fleets;
 
-    private static Timer clock = null;
-    private TimerTask timerTask;
-
-
     private int width = getContext().getResources().getDisplayMetrics().widthPixels;
     private int height = getContext().getResources().getDisplayMetrics().heightPixels;
 
     private boolean setupComplete = false;
-    private Random random;
     private GameScreen mActivity;
     public boolean gameOver = false;
     private int frameRate;
     private boolean playing = false;
 
-    public Game(Context context, GameScreen activity, final Player player1, Player player2, int speed) {
+    public Game(Context context, GameScreen activity, int speed) {
         super(context);
-//        p1 = player1;
-//        p2 = player2;
-
-
         winner = null;
         mActivity = activity;
         planets = Collections.synchronizedSet(new HashSet<Planet>());
-        ;
         fleets = Collections.synchronizedSet(new HashSet<Fleet>());
-        ;
-        random = new Random();
         this.frameRate = 5 * (speed + 1);
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
                 float x;
                 float y;
-                String sDown;
-                String sMove;
-                String sUp;
-
                 x = event.getX();
                 y = event.getY();
 
@@ -80,8 +56,6 @@ public class Game extends View {
                                 start = planet;
                             }
                         }
-
-
                         break;
                     case MotionEvent.ACTION_MOVE: // move
 
@@ -93,7 +67,6 @@ public class Game extends View {
                                 end = planet;
                                 if (!planet.equals(start) && start != null) {
                                     start.sendFleet((int) (start.numUnits * 0.5), end);
-//                                    startMove((int) (start.numUnits * 0.5), start, end);
                                     start = null;
                                     end = null;
                                 }
@@ -183,9 +156,7 @@ public class Game extends View {
 
     private void generateNewMap(Player p1, Player p2) {
         planets = Collections.synchronizedSet(new HashSet<Planet>());
-        ;
         fleets = Collections.synchronizedSet(new HashSet<Fleet>());
-        ;
         planets.add(new Planet(p1, this)); //Give player 1 a starting planet
         planets.add(new Planet(p2, this)); //Give player 2 a starting planet
 
@@ -193,7 +164,9 @@ public class Game extends View {
         {
             planets.add(new Planet(this));
         }
-
+        for (Planet planet : planets) {
+            planet.run();
+        }
     }
 
     @SuppressLint("DrawAllocation")
@@ -206,12 +179,15 @@ public class Game extends View {
         if (playing != true) {
             play();
         }
-
-        for (Planet pl : planets) {
-            pl.draw(canvas);
+        synchronized(planets) {
+            for (Planet pl : planets) {
+                pl.draw(canvas);
+            }
         }
-        for (Fleet fleet : fleets) {
-            fleet.draw(canvas);
+        synchronized(fleets) {
+            for (Fleet fleet : fleets) {
+                fleet.draw(canvas);
+            }
         }
 
         final View parent = this;
@@ -251,23 +227,21 @@ public class Game extends View {
                     parent.postDelayed(new Runnable() {
                         public void run() {
                             parent.invalidate();
-                            for (Planet pl : planets) {
-                                if (pl.numUnits < pl.MAX_NEUTRAL_UNITS && pl.owner == null)
-                                    pl.numUnits++;
-                                else if (pl.numUnits < pl.MAX_UNITS)
-                                    pl.numUnits++;
-                                try {
-                                    Thread.sleep((long) (pl.PRODUCTION_TIME));
-                                } catch (InterruptedException ignored) {
-                                }
-                            }
+//                            for (Planet pl : planets) {
+//                                if (pl.numUnits < pl.MAX_NEUTRAL_UNITS && pl.owner == null)
+//                                    pl.numUnits++;
+//                                else if (pl.numUnits < pl.MAX_UNITS)
+//                                    pl.numUnits++;
+//                                try {
+//                                    Thread.sleep((long) (pl.PRODUCTION_TIME));
+//                                } catch (InterruptedException ignored) {
+//                                }
+//                            }
                         }
                     }, 500 / frameRate);
                 }
             }).start();
         }
-
-
     }
 
     public void stop(Thread thread) {
@@ -276,32 +250,14 @@ public class Game extends View {
     }
 
     public void deleteFleet() {
-        Iterator<Fleet> it = fleets.iterator();
-        while (it.hasNext()) {
-            Fleet fleet = it.next();
-            if (fleet.isArrived()) {
-                it.remove();
+        synchronized (fleets) {
+            Iterator<Fleet> it = fleets.iterator();
+            while (it.hasNext()) {
+                Fleet fleet = it.next();
+                if (fleet.isArrived()) {
+                    it.remove();
+                }
             }
         }
     }
-
-    public class MyCustomTimer{
-        public MyCustomTimer() {
-        }
-        public void setTimer(Game game, long time) {
-            new CountDownTimer(time, 1000) {
-                public void onTick(long millisUntilFinished) {
-                }
-                public void onFinish() {
-                    for (Planet pl : planets) {
-                        if (pl.numUnits < pl.MAX_NEUTRAL_UNITS && pl.owner == null)
-                            pl.numUnits++;
-                        else if (pl.numUnits < pl.MAX_UNITS)
-                            pl.numUnits++;
-                    }
-                }
-            }.start();
-        }
-    }
-
 }

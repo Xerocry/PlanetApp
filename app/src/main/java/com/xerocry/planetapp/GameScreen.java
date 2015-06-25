@@ -36,8 +36,8 @@ public class GameScreen extends Activity{
         // Grab Score TextView Handle, Create Game Object & Add Game to Frame
         player1 = null;
         player2 = null;
-        winner = null;
-        game = new Game(this,this,player1,player2,speed);
+        winner=null;
+        game = new Game(this,this,speed);
         frameView = (FrameLayout) findViewById(R.id.gameFrame);
         frameView.addView(game);
     }
@@ -72,6 +72,10 @@ public class GameScreen extends Activity{
         // Do Nothing if Game Over
         if(game.gameOver) return;
 
+        for (Planet planet : game.getAllPlanets()) {
+            planet.onPause();
+        }
+
         final CharSequence[] items = {"Continue","Start Over","Go Back"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.paused);
@@ -93,6 +97,9 @@ public class GameScreen extends Activity{
                     // Continue Game
                     default:
                         game.invalidate();
+                        for (Planet planet : game.getAllPlanets()) {
+                            planet.onResume();
+                        }
                 }
             }
         });

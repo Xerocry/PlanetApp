@@ -25,7 +25,7 @@ public class SampleBot extends Player {
     @Override
     public void makeMove() {
         try {
-            sleep(100);
+            sleep(300);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -4,29 +4,35 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 /**
  * Created by Xerocry on 08.06.2015.
  */
-public class Planet {
+public class Planet implements Runnable{
+    android.os.Handler customHandler = new android.os.Handler();
     public static final int MAX_SIZE = 90;
     public static final int MIN_SIZE = 50;
     public static final int MAX_NEUTRAL_UNITS = 50;
     public static final int MIN_PRODUCE_TIME = 40;
-    public static final int MAX_PRODUCE_TIME = 100;
+    public static final int MAX_PRODUCE_TIME = 200;
     public static final int MAX_UNITS = 100;
 
     public int X, Y, RADIUS, PRODUCTION_TIME;
     public int numUnits = 0;
-    public Player owner;
+    public Player owner = null;
     public Game parent;
 
     Paint color = new Paint();
 
+    private Object mPauseLock = new Object();
+    private boolean mPaused = false;
+    private boolean mFinished = false;
+
     public Planet(Player player, Game parent) {
         this.parent = parent;
         owner = player;
-        numUnits = 20;
+        numUnits = 50;
         RADIUS = MAX_SIZE;
         PRODUCTION_TIME = MIN_PRODUCE_TIME;
 
@@ -49,11 +55,11 @@ public class Planet {
     public Planet(Game parent) {
 
         this.parent = parent;
-        this.owner = null;
         numUnits = (int) (Math.random() * MAX_NEUTRAL_UNITS);
         RADIUS = (int) (Math.random() * (MAX_SIZE - MIN_SIZE) + MIN_SIZE);
         PRODUCTION_TIME = (int) ((1 - ((double) RADIUS - MIN_SIZE) / (MAX_SIZE - MIN_SIZE)) *
                 (MAX_PRODUCE_TIME - MIN_PRODUCE_TIME) + MIN_PRODUCE_TIME);
+
         int x = parent.genX(RADIUS);
         int y = parent.genY(RADIUS);
 
@@ -80,8 +86,49 @@ public class Planet {
         Rect bounds = new Rect();
         paint.getTextBounds(Integer.toString(numUnits), 0, Integer.toString(numUnits).length(), bounds);
         canvas.drawText(Integer.toString(numUnits), X, Y, paint);
+    }
+
+    @Override
+    public void run() {
+//        while (!mFinished) {
+            customHandler.postDelayed(updateTimerThread, 0);
+//
+//            synchronized (mPauseLock) {
+//                while (mPaused) {
+//                    try {
+//                        mPauseLock.wait();
+//                    } catch (InterruptedException e) {
+//                    }
+//                }
+//            }
+//        }
 
     }
+
+    public void onPause() {
+        synchronized (mPauseLock) {
+            mPaused = true;
+        }
+    }
+
+    public void onResume() {
+        synchronized (mPauseLock) {
+            mPaused = false;
+            mPauseLock.notifyAll();
+        }
+    }
+
+    private Runnable updateTimerThread = new Runnable()
+    {
+        public void run()
+        {
+            if (numUnits < MAX_NEUTRAL_UNITS && owner == null)
+                numUnits++;
+            else if (numUnits < MAX_UNITS)
+                numUnits++;
+            customHandler.postDelayed(this, PRODUCTION_TIME*10);
+        }
+    };
 
     public void sendFleet(int numSent, Planet target) {
         if (target != this && target != null) {
