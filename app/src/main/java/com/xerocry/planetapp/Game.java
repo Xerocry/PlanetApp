@@ -51,6 +51,7 @@ public class Game extends View {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN: // press
                         for (Planet planet : planets) {
+                            //if we touch the planet make it start
                             if ((Math.pow(x - planet.X, 2) +
                                     Math.pow(y - planet.Y, 2) <= planet.RADIUS * planet.RADIUS)&&planet.owner==p1) {
                                 start = planet;
@@ -62,13 +63,16 @@ public class Game extends View {
                         break;
                     case MotionEvent.ACTION_UP: // unpress
                         for (Planet planet : planets) {
+                            //if we untouch on planet - send fleet to it
                             if (Math.pow(x - planet.X, 2) +
                                     Math.pow(y - planet.Y, 2) <= planet.RADIUS * planet.RADIUS) {
                                 end = planet;
-                                if (!planet.equals(start) && start != null) {
-                                    start.sendFleet((int) (start.numUnits * 0.5), end);
-                                    start = null;
-                                    end = null;
+                                if (start != null) {
+                                    if (planet.getId() != start.getId()) {
+                                        start.sendFleet((int) (start.numUnits * 0.5), end, start.owner);
+                                        start = null;
+                                        end = null;
+                                    }
                                 }
                             }
                         }
@@ -91,7 +95,6 @@ public class Game extends View {
         p1.start();
         }
         if (p2.getClass().equals(SampleBot.class)) {
-            System.out.println("p2 is a bot! Start!");
         p2.start();
         }
         playing = true;
@@ -196,16 +199,19 @@ public class Game extends View {
         int p2Win = 0;
 
         for (Planet planet : planets) {
-            if (planet.owner == p2) {
+            if (planet.owner == null) {
+                continue;
+            }
+            if (planet.owner.getId() == p2.getId()) {
                 p2Win++;
-            } else if (planet.owner == p1) p1Win++;
+            } else if (planet.owner.getId() == p1.getId()) p1Win++;
         }
-        if (p1Win == 0 && fleets.isEmpty()) {
+        if (p1Win == 0 && p1.numFleets==0) {
             winner = p2;
             gameOver = true;
             stop(p1);
             stop(p2);
-        } else if (p2Win == 0 && fleets.isEmpty()) {
+        } else if (p2Win == 0 && p2.numFleets==0) {
             winner = p1;
             gameOver = true;
             stop(p1);
@@ -227,16 +233,6 @@ public class Game extends View {
                     parent.postDelayed(new Runnable() {
                         public void run() {
                             parent.invalidate();
-//                            for (Planet pl : planets) {
-//                                if (pl.numUnits < pl.MAX_NEUTRAL_UNITS && pl.owner == null)
-//                                    pl.numUnits++;
-//                                else if (pl.numUnits < pl.MAX_UNITS)
-//                                    pl.numUnits++;
-//                                try {
-//                                    Thread.sleep((long) (pl.PRODUCTION_TIME));
-//                                } catch (InterruptedException ignored) {
-//                                }
-//                            }
                         }
                     }, 500 / frameRate);
                 }

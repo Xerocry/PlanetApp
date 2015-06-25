@@ -2,6 +2,26 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent" >
 
+  <TextView
+      android:id="@+id/textView1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:textSize="18sp"
+      android:layout_marginTop="20dp"
+      android:text="@string/speed" />
+
+  <!--<com.xerocry.planetapp.ColorPickerDialog-->
+      <!--android:id="@+id/playerColorDialog"-->
+      <!--android:layout_width="wrap_content"-->
+      <!--android:layout_height="wrap_content"-->
+      <!--android:layout_below="@+id/textView1"-->
+      <!--android:layout_centerHorizontal="true">-->
+    <!--<com.larswerkman.colorpicker.ColorPicker-->
+        <!--android:id="@+id/colorPicker"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+
   <Button
     android:id="@+id/button1"
     android:layout_width="wrap_content"

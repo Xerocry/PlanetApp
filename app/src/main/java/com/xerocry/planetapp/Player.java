@@ -3,6 +3,8 @@ package com.xerocry.planetapp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+
 import android.graphics.Color;
 import android.graphics.Paint;
 
@@ -11,9 +13,13 @@ import android.graphics.Paint;
  */
 public abstract class Player extends Thread
 {
+    public int numFleets = 0;
+    static final AtomicLong NEXT_ID = new AtomicLong(0);
+    final long id = NEXT_ID.getAndIncrement();
     public abstract int getColor(); //Get the AI's color
     public abstract void makeMove(); //The AI's main brain
     public abstract String getPlayerName(); //Get the AI's name
+    public Paint color = new Paint();
 
     public static Game currentGame;
 
@@ -67,10 +73,7 @@ public abstract class Player extends Thread
         Planet target = getPlanetFromInfo(targetInfo);
         if (origin != null && target != null)
         {
-//            if (origin.owner == this)
-//            {
-                origin.sendFleet(numUnits, target);
-//            }
+                origin.sendFleet(numUnits, target, this);
         }
     }
 
@@ -78,4 +81,5 @@ public abstract class Player extends Thread
     {
         return "Player [name=" + getPlayerName() + "]";
     }
+
 }

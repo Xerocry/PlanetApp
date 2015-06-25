@@ -6,10 +6,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Created by Xerocry on 08.06.2015.
  */
 public class Planet implements Runnable{
+
+    static final AtomicLong NEXT_ID = new AtomicLong(0);
+    final long id = NEXT_ID.getAndIncrement();
     android.os.Handler customHandler = new android.os.Handler();
     public static final int MAX_SIZE = 90;
     public static final int MIN_SIZE = 50;
@@ -20,6 +25,7 @@ public class Planet implements Runnable{
 
     public int X, Y, RADIUS, PRODUCTION_TIME;
     public int numUnits = 0;
+
     public Player owner = null;
     public Game parent;
 
@@ -71,6 +77,10 @@ public class Planet implements Runnable{
         Y = y;
         color = new Paint();
         color.setColor(Color.DKGRAY);
+    }
+
+    public long getId() {
+        return id;
     }
 
     public void draw(Canvas canvas) {
@@ -126,20 +136,20 @@ public class Planet implements Runnable{
                 numUnits++;
             else if (numUnits < MAX_UNITS)
                 numUnits++;
-            customHandler.postDelayed(this, PRODUCTION_TIME*10);
+            customHandler.postDelayed(this, PRODUCTION_TIME*5);
         }
     };
 
-    public void sendFleet(int numSent, Planet target) {
+    public void sendFleet(int numSent, Planet target, Player owner) {
         if (target != this && target != null) {
             if (numSent > numUnits) {
                 numSent = numUnits - 1;
             }
             numUnits -= numSent;
-            Fleet fleet = new Fleet(this, target, numSent);
+            Fleet fleet = new Fleet(parent, this, target, owner, numSent);
             parent.addFleet(fleet);
-            FleetProcessor fleetProc = new FleetProcessor(parent, fleet);
-            fleetProc.start();
+            owner.numFleets++;
+            fleet.start();
         }
     }
 

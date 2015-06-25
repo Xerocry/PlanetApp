@@ -13,7 +13,7 @@ import android.widget.TextView;
 /**
  * Created by Xerocry on 07.06.2015.
  */
-public class GameScreen extends Activity{
+public class GameScreen extends Activity {
     private Player player1, player2, winner;
     private Game game;
     private FrameLayout frameView;
@@ -36,20 +36,20 @@ public class GameScreen extends Activity{
         // Grab Score TextView Handle, Create Game Object & Add Game to Frame
         player1 = null;
         player2 = null;
-        winner=null;
-        game = new Game(this,this,speed);
+        winner = null;
+        game = new Game(this, this, speed);
         frameView = (FrameLayout) findViewById(R.id.gameFrame);
         frameView.addView(game);
     }
 
-    public void gameOver(Player winner){
-        final CharSequence[] items = {"Play Again","Go Back"};
+    public void gameOver(Player winner) {
+        final CharSequence[] items = {"Play Again", "Go Back"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.gameOver+winner.getPlayerName());
+        builder.setTitle("Game Over. Winner : " + winner.getPlayerName());
         builder.setItems(items, new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int item) {
-                switch(item){
+                switch (item) {
                     // Play Again
                     case 0:
                         game.setup();
@@ -67,22 +67,22 @@ public class GameScreen extends Activity{
         builder.create().show();
     }
 
-    public void pauseGame(){
+    public void pauseGame() {
 
         // Do Nothing if Game Over
-        if(game.gameOver) return;
+        if (game.gameOver) return;
 
         for (Planet planet : game.getAllPlanets()) {
             planet.onPause();
         }
 
-        final CharSequence[] items = {"Continue","Start Over","Go Back"};
+        final CharSequence[] items = {"Continue", "Start Over", "Go Back"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.paused);
         builder.setItems(items, new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int item) {
-                switch(item){
+                switch (item) {
                     // New Game (Start Over)
                     case 1:
                         game.setup();
@@ -110,16 +110,16 @@ public class GameScreen extends Activity{
 
     // Hardware Button Presses
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         // On Menu or Back Press, Pause Game
-        if ((keyCode == KeyEvent.KEYCODE_MENU || keyCode ==  KeyEvent.KEYCODE_BACK) && event.getRepeatCount() == 0)
+        if ((keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_BACK) && event.getRepeatCount() == 0)
             pauseGame();
         return true;
     }
 
     // Pause Game when Activity Paused
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         pauseGame();
     }

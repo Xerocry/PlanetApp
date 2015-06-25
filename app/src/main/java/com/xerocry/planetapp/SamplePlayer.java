@@ -8,7 +8,7 @@ import android.graphics.Color;
  */
 public class SamplePlayer extends Player {
 
-    final String NAME = "Player";
+    public String NAME = "Player";
     final int COLOR = Color.GREEN;
 
     @Override

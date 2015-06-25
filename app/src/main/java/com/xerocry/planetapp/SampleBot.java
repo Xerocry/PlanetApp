@@ -8,8 +8,7 @@ import android.graphics.Color;
  */
 public class SampleBot extends Player {
 
-    int i;
-    final String NAME = "Sample Player";
+    final String NAME = "Bot";
     final int COLOR = Color.rgb((int) (Math.random() * 255), (int) (Math.random() * 225), (int) (Math.random() * 225));
 
     @Override
@@ -25,13 +24,14 @@ public class SampleBot extends Player {
     @Override
     public void makeMove() {
         try {
-            sleep(300);
+            sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("Making move~~" + i);
-        i++;
+        if (numFleets >= 4) {
+            return;
+        }
 
         PlanetInfo source = null;
         double sourceScore = Double.MIN_VALUE;
@@ -55,12 +55,8 @@ public class SampleBot extends Player {
 
         if (source != null && dest != null) {
             int numShips = Math.round(source.NUM_UNITS / 2);
+
             sendFleet(source, numShips, dest);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
     }
 }

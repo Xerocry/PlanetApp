@@ -30,7 +30,8 @@ public class OptionsScreen extends Activity {
 
   SharedPreferences userPreferences;
   SharedPreferences.Editor userPreferencesEditor;
-  Spinner themeSpinner;
+  Spinner playerColorSpinner;
+  Spinner botColorSpinner;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
