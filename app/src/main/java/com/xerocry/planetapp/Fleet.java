@@ -9,7 +9,7 @@ import android.graphics.Rect;
  * Created by Xerocry on 08.06.2015.
  */
 public class Fleet extends Thread {
-    private Game game;
+    private Gamev2 gamev2;
     private Player owner;
     private Planet start;
     private Planet destination;
@@ -77,7 +77,7 @@ public class Fleet extends Thread {
         setArrived(true);
         owner.numFleets--;
 
-        game.stop(this);
+        gamev2.stop(this);
     }
 
     public Planet getStart() {
@@ -100,8 +100,8 @@ public class Fleet extends Thread {
         this.arrived = arrived;
     }
 
-    public Fleet(Game game, Planet start, Planet destination, Player owner, int shipAmount) {
-        this.game = game;
+    public Fleet(Gamev2 gamev2, Planet start, Planet destination, Player owner, int shipAmount) {
+        this.gamev2 = gamev2;
         this.owner = owner;
         this.start = start;
         this.destination = destination;

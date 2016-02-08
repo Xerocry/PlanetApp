@@ -1,11 +1,8 @@
 package com.xerocry.planetapp;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 
 /**
@@ -21,7 +18,7 @@ public abstract class Player extends Thread
     public abstract String getPlayerName(); //Get the AI's name
     public Paint color = new Paint();
 
-    public static Game currentGame;
+    public static Gamev2 currentGamev2;
 
     @Override
     public void run()
@@ -35,7 +32,7 @@ public abstract class Player extends Thread
     public ArrayList<PlanetInfo> getMyPlanetInfo()
     {
         ArrayList<PlanetInfo> myInfo = new ArrayList<>();
-        for (Planet p: currentGame.getAllPlanets())
+        for (Planet p: currentGamev2.getAllPlanets())
         {
             if (p.owner == this)
             {
@@ -48,7 +45,7 @@ public abstract class Player extends Thread
     public ArrayList<PlanetInfo> getAllPlanetInfo()
     {
         ArrayList<PlanetInfo> info = new ArrayList<PlanetInfo>();
-        for (Planet p: currentGame.getAllPlanets())
+        for (Planet p: currentGamev2.getAllPlanets())
         {
             info.add(p.getPlanetInfo());
         }
@@ -57,7 +54,7 @@ public abstract class Player extends Thread
 
     private Planet getPlanetFromInfo(PlanetInfo pInfo)
     {
-        for (Planet p: currentGame.getAllPlanets())
+        for (Planet p: currentGamev2.getAllPlanets())
         {
             if (p.getPlanetInfo().equals(pInfo))
             {

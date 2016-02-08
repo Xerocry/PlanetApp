@@ -6,16 +6,14 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 /**
  * Created by Xerocry on 07.06.2015.
  */
 public class GameScreen extends Activity {
     private Player player1, player2, winner;
-    private Game game;
+    private Gamev2 gamev2;
     private FrameLayout frameView;
     private Activity mActivity;
     SharedPreferences speedSetting;
@@ -37,9 +35,9 @@ public class GameScreen extends Activity {
         player1 = null;
         player2 = null;
         winner = null;
-        game = new Game(this, this, speed);
+        gamev2 = new Gamev2(this, this, speed);
         frameView = (FrameLayout) findViewById(R.id.gameFrame);
-        frameView.addView(game);
+        frameView.addView(gamev2);
     }
 
     public void gameOver(Player winner) {
@@ -52,8 +50,8 @@ public class GameScreen extends Activity {
                 switch (item) {
                     // Play Again
                     case 0:
-                        game.setup();
-                        game.invalidate();
+                        gamev2.setup();
+                        gamev2.invalidate();
                         break;
 
                     // Go Back
@@ -70,9 +68,9 @@ public class GameScreen extends Activity {
     public void pauseGame() {
 
         // Do Nothing if Game Over
-        if (game.gameOver) return;
+        if (gamev2.gameOver) return;
 
-        for (Planet planet : game.getAllPlanets()) {
+        for (Planet planet : gamev2.getAllPlanets()) {
             planet.onPause();
         }
 
@@ -85,8 +83,8 @@ public class GameScreen extends Activity {
                 switch (item) {
                     // New Game (Start Over)
                     case 1:
-                        game.setup();
-                        game.invalidate();
+                        gamev2.setup();
+                        gamev2.invalidate();
                         break;
 
                     // End Game (Go Back)
@@ -96,8 +94,8 @@ public class GameScreen extends Activity {
 
                     // Continue Game
                     default:
-                        game.invalidate();
-                        for (Planet planet : game.getAllPlanets()) {
+                        gamev2.invalidate();
+                        for (Planet planet : gamev2.getAllPlanets()) {
                             planet.onResume();
                         }
                 }

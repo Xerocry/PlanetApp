@@ -8,45 +8,41 @@ import android.view.View;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-/**
- * Created by Xerocry on 08.02.2016.
- */
-public class Game extends View {
+public class Gamev2 extends View {
     private Player p1 = null;
     private Player p2 = null;
     private Player winner = null;
 
-    //Be selected from game room size
-    private static final int NUM_PLANETS = 6;
-    private int frameRate;
+    Planet start = null;
+    Planet end = null;
 
-    private int width = getContext().getResources().getDisplayMetrics().widthPixels;
-    private int height = getContext().getResources().getDisplayMetrics().heightPixels;
+    private static final int NUM_PLANETS = 6;
 
     private Set<Planet> planets;
     private Set<Fleet> fleets;
 
+    private int width = getContext().getResources().getDisplayMetrics().widthPixels;
+    private int height = getContext().getResources().getDisplayMetrics().heightPixels;
+
     private boolean setupComplete = false;
-    //Flag to start writing score
+    private GameScreen mActivity;
     public boolean gameOver = false;
-    //Flag for checking
+    private int frameRate;
     private boolean playing = false;
 
-    public Game(Context context, Player p1, Player p2, int speed) {
+    public Gamev2(Context context, GameScreen activity, int speed) {
         super(context);
-        this.p1 = p1;
-        this.p2 = p2;
-        this.frameRate = 5 * (speed + 1);
         winner = null;
+        mActivity = activity;
         planets = Collections.synchronizedSet(new HashSet<Planet>());
         fleets = Collections.synchronizedSet(new HashSet<Fleet>());
+        this.frameRate = 5 * (speed + 1);
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Planet start = null;
-                Planet end = null;
                 float x;
                 float y;
                 x = event.getX();
@@ -57,7 +53,7 @@ public class Game extends View {
                         for (Planet planet : planets) {
                             //if we touch the planet make it start
                             if ((Math.pow(x - planet.X, 2) +
-                                    Math.pow(y - planet.Y, 2) <= planet.RADIUS * planet.RADIUS) && planet.owner == p1) {
+                                    Math.pow(y - planet.Y, 2) <= planet.RADIUS * planet.RADIUS)&&planet.owner==p1) {
                                 start = planet;
                             }
                         }
@@ -91,37 +87,48 @@ public class Game extends View {
         });
     }
 
+    public void play() {
+        if (setupComplete != true) {
+            return;
+        }
+        if (p1.getClass().equals(SampleBot.class)) {
+        p1.start();
+        }
+        if (p2.getClass().equals(SampleBot.class)) {
+        p2.start();
+        }
+        playing = true;
+    }
+
+    public void addFleet(Fleet f) {
+        synchronized (fleets) {
+            fleets.add(f);
+        }
+    }
+
+    public Set<Planet> getAllPlanets() {
+        synchronized (planets) {
+            return planets;
+        }
+    }
+
+    // Setup View
     public void setup() {
         gameOver = false;
         playing = false;
-
-        //This depends on game mode
-        p1 = new SamplePlayer();
         p2 = new SampleBot();
-
-//        p2.currentGamev2 = this;
-//        p1.currentGamev2 = this;
-
+        p2.currentGamev2 = this;
+        p1 = new SamplePlayer();
+        p1.currentGamev2 = this;
         int pxWidth = getWidth();
         int pxHeight = getHeight();
         int dpi = getResources().getDisplayMetrics().densityDpi;
 
         generateNewMap(p1, p2);
 
-        setupComplete = true;
-    }
+//        clock.schedule(timerTask, 500, 500);
 
-    public void play() {
-        if (setupComplete != true) {
-            return;
-        }
-        if (p1.getClass().equals(SampleBot.class)) {
-            p1.start();
-        }
-        if (p2.getClass().equals(SampleBot.class)) {
-            p2.start();
-        }
-        playing = true;
+        setupComplete = true;
     }
 
     //Generate a value of x between rad and WIN_WIDTH - rad
@@ -160,28 +167,12 @@ public class Game extends View {
         {
             planets.add(new Planet(this));
         }
-//        for (Planet planet : planets) {
-//            planet.run();
-//        }
-        Thread t = new Thread(new Runnable() {
-            private long time;
-
-            @Override
-            public void run() {
-                for (Planet pl : planets) {
-                    if (time % (pl.PRODUCTION_TIME * 5) == 0) {
-                        if (pl.numUnits < pl.MAX_NEUTRAL_UNITS && pl.owner == null)
-                            pl.numUnits++;
-                        else if (pl.numUnits < pl.MAX_UNITS)
-                            pl.numUnits++;
-                    }
-                }
-                time++;
-            }
-        });
+        for (Planet planet : planets) {
+            planet.run();
+        }
     }
 
-    @SuppressLint("DrawAllocation")
+        @SuppressLint("DrawAllocation")
     protected void onDraw(Canvas canvas) {
         if (!setupComplete) {
             setup();
@@ -218,14 +209,51 @@ public class Game extends View {
         if (p1Win == 0 && p1.numFleets==0) {
             winner = p2;
             gameOver = true;
-            stopGame();
+            stop(p1);
+            stop(p2);
         } else if (p2Win == 0 && p2.numFleets==0) {
             winner = p1;
             gameOver = true;
-            stopGame();
+            stop(p1);
+            stop(p2);
         }
-
+        if (gameOver) {
+            new Thread(new Runnable() {
+                public void run() {
+                    parent.postDelayed(new Runnable() {
+                        public void run() {
+                            mActivity.gameOver(winner);
+                        }
+                    }, 500);
+                }
+            }).start();
+        } else {
+            new Thread(new Runnable() {
+                public void run() {
+                    parent.postDelayed(new Runnable() {
+                        public void run() {
+                            parent.invalidate();
+                        }
+                    }, 500 / frameRate);
+                }
+            }).start();
+        }
     }
 
+    public void stop(Thread thread) {
+        thread = null;
+        deleteFleet();
+    }
 
+    public void deleteFleet() {
+        synchronized (fleets) {
+            Iterator<Fleet> it = fleets.iterator();
+            while (it.hasNext()) {
+                Fleet fleet = it.next();
+                if (fleet.isArrived()) {
+                    it.remove();
+                }
+            }
+        }
+    }
 }

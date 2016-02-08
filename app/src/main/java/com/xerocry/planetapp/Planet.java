@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,9 +12,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Planet implements Runnable{
 
+    //Every planet has uniq id
     static final AtomicLong NEXT_ID = new AtomicLong(0);
     final long id = NEXT_ID.getAndIncrement();
     android.os.Handler customHandler = new android.os.Handler();
+    //These par-res must be in settings
     public static final int MAX_SIZE = 90;
     public static final int MIN_SIZE = 50;
     public static final int MAX_NEUTRAL_UNITS = 50;
@@ -27,15 +28,17 @@ public class Planet implements Runnable{
     public int numUnits = 0;
 
     public Player owner = null;
-    public Game parent;
+    //? Do I need it?
+    public Gamev2 parent;
 
     Paint color = new Paint();
 
+    //What is it?
     private Object mPauseLock = new Object();
     private boolean mPaused = false;
     private boolean mFinished = false;
 
-    public Planet(Player player, Game parent) {
+    public Planet(Player player, Gamev2 parent) {
         this.parent = parent;
         owner = player;
         numUnits = 50;
@@ -58,7 +61,7 @@ public class Planet implements Runnable{
         color.setColor(owner.getColor());
     }
 
-    public Planet(Game parent) {
+    public Planet(Gamev2 parent) {
 
         this.parent = parent;
         numUnits = (int) (Math.random() * MAX_NEUTRAL_UNITS);
@@ -100,18 +103,7 @@ public class Planet implements Runnable{
 
     @Override
     public void run() {
-//        while (!mFinished) {
             customHandler.postDelayed(updateTimerThread, 0);
-//
-//            synchronized (mPauseLock) {
-//                while (mPaused) {
-//                    try {
-//                        mPauseLock.wait();
-//                    } catch (InterruptedException e) {
-//                    }
-//                }
-//            }
-//        }
 
     }
 
@@ -163,6 +155,8 @@ public class Planet implements Runnable{
     }
 }
 
+
+//Class for easy info about planet
 class PlanetInfo {
     public final int NUM_UNITS, X, Y, RADIUS, PRODUCTION_TIME;
     public final Player OWNER;
